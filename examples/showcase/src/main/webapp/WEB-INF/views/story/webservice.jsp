@@ -3,7 +3,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <html>
 <head>
-	<title>Restful Service高级演示</title>
+	<title>Web Service高级演示</title>
 	<script>
 		$(document).ready(function() {
 			$("#webservice-tab").addClass("active");
@@ -31,7 +31,7 @@
 	<ul>
 		<li>集成Shiro进行HttpBasic的认证 </li>
 		<li>XML与JSON两种格式的序列化</li>
-		<li>演示地址：<a href="${ctx}/api/v1/user/1.xml">/api/v1/user/1.xml</a> 与 <a href="${ctx}/api/v1/user/1.json">/api/v1/user/1.json</a> (用浏览器访问时需要认证admin/admin)</li>
+		<li>演示地址：<a href="${ctx}/api/v1/user/1.xml">/api/v1/user/1.xml</a> 与 <a href="${ctx}/api/v1/user/1.xml">/api/v1/user/1.json</a> (用浏览器访问时需要认证admin/admin)</li>
 	</ul>
 	客户端:
 	<ul>
