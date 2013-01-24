@@ -3,6 +3,7 @@ package org.springside.examples.showcase.web;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.validation.Valid;
 
 import org.apache.shiro.authz.annotation.Logical;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springside.examples.showcase.entity.Role;
 import org.springside.examples.showcase.entity.User;
 import org.springside.examples.showcase.service.AccountService;
+import org.springside.modules.web.Servlets;
 
 import com.google.common.collect.Maps;
 
@@ -40,11 +42,14 @@ public class UserController {
 	@Autowired
 	private AccountService accountService;
 
-	//特别设定多个ReuireRoles之间为Or关系，而不是默认的And.
+	// 特别设定多个ReuireRoles之间为Or关系，而不是默认的And.
 	@RequiresRoles(value = { "Admin", "User" }, logical = Logical.OR)
 	@RequestMapping(value = "")
-	public String list(Model model) {
-		List<User> users = accountService.getAllUser();
+	public String list(Model model, ServletRequest request) {
+
+		Map<String, Object> searchParams = Servlets.getParametersStartingWith(request, "search_");
+
+		List<User> users = accountService.searchUser(searchParams);
 		model.addAttribute("users", users);
 		model.addAttribute("allStatus", allStatus);
 		return "account/userList";
@@ -64,10 +69,10 @@ public class UserController {
 	 */
 	@RequiresPermissions("user:edit")
 	@RequestMapping(value = "update", method = RequestMethod.POST)
-	public String update(@Valid @ModelAttribute("preloadUser") User user,
+	public String update(@Valid @ModelAttribute("user") User user,
 			@RequestParam(value = "roleList") List<Long> checkedRoleList, RedirectAttributes redirectAttributes) {
 
-		//bind roleList
+		// bind roleList
 		user.getRoleList().clear();
 		for (Long roleId : checkedRoleList) {
 			Role role = new Role(roleId);
@@ -94,15 +99,14 @@ public class UserController {
 	}
 
 	/**
-	 * 使用@ModelAttribute, 实现Struts2 Preparable二次部分绑定的效果,先根据form的id从数据库查出User对象,再把Form提交的内容绑定到该对象上。
-	 * 因为仅update()方法的form中有id属性，因此本方法在该方法中执行.
+	 * 所有RequestMapping方法调用前的Model准备方法, 实现Struts2 Preparable二次部分绑定的效果,先根据form的id从数据库查出User对象,再把Form提交的内容绑定到该对象上。
+	 * 因为仅update()方法的form中有id属性，因此仅在update时实际执行.
 	 */
-	@ModelAttribute("preloadUser")
-	public User getUser(@RequestParam(value = "id", required = false) Long id) {
+	@ModelAttribute
+	public void getUser(@RequestParam(value = "id", required = false) Long id, Model model) {
 		if (id != null) {
-			return accountService.getUser(id);
+			model.addAttribute("user", accountService.getUser(id));
 		}
-		return null;
 	}
 
 	/**

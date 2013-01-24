@@ -10,16 +10,12 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springside.modules.utils.Collections3;
 
 import com.google.common.collect.Lists;
 
 public class DynamicSpecifications {
-	private static final ConversionService conversionService = new DefaultConversionService();
-
 	public static <T> Specification<T> bySearchFilter(final Collection<SearchFilter> filters, final Class<T> clazz) {
 		return new Specification<T>() {
 			@Override
@@ -28,19 +24,11 @@ public class DynamicSpecifications {
 
 					List<Predicate> predicates = Lists.newArrayList();
 					for (SearchFilter filter : filters) {
-
 						// nested path translate, 如Task的名为"user.name"的filedName, 转换为Task.user.name属性
 						String[] names = StringUtils.split(filter.fieldName, ".");
 						Path expression = root.get(names[0]);
 						for (int i = 1; i < names.length; i++) {
 							expression = expression.get(names[i]);
-						}
-
-						// convert value from string to target type
-						Class attributeClass = expression.getJavaType();
-						if (!attributeClass.equals(String.class) && filter.value instanceof String
-								&& conversionService.canConvert(String.class, attributeClass)) {
-							filter.value = conversionService.convert(filter.value, attributeClass);
 						}
 
 						// logic operator

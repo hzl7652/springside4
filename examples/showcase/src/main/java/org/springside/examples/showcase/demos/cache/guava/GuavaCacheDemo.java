@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springside.examples.showcase.entity.User;
 import org.springside.examples.showcase.service.AccountService;
 import org.springside.modules.test.data.DataFixtures;
-import org.springside.modules.test.log.Log4jMockAppender;
+import org.springside.modules.test.log.LogbackListAppender;
 import org.springside.modules.test.spring.SpringTransactionalTestCase;
 import org.springside.modules.utils.Threads;
 
@@ -23,7 +23,7 @@ import com.google.common.cache.LoadingCache;
 /**
  * 本地缓存演示，使用GuavaCache.
  * 
- * @author hzl7652
+ * @author calvin
  */
 @ContextConfiguration(locations = { "/applicationContext.xml" })
 public class GuavaCacheDemo extends SpringTransactionalTestCase {
@@ -50,7 +50,7 @@ public class GuavaCacheDemo extends SpringTransactionalTestCase {
 		DataFixtures.executeScript(dataSource, "classpath:data/cleanup-data.sql", "classpath:data/import-data.sql");
 
 		//插入appender用于assert。
-		Log4jMockAppender appender = new Log4jMockAppender();
+		LogbackListAppender appender = new LogbackListAppender();
 		appender.addToLogger(GuavaCacheDemo.class);
 
 		//第一次加载会查数据库
